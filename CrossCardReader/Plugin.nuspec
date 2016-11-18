@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+   <metadata minClientVersion="2.8.1">
+       <id>CrossCardReader</id>
+       <version>$version$</version>
+       <title>Card Reader for Xamarin</title>
+       <authors>Tristan Martinez</authors>
+       <owners>Tristan Martinez</owners>
+       <licenseUrl>https://github.com/tristanmhmx/CrossCardReader/blob/master/LICENSE</licenseUrl>
+       <projectUrl>https://github.com/tristanmhmx/CrossCardReader</projectUrl>
+       <iconUrl>https://alset.com.mx/Content/Images/alsetlogo2016-05.png</iconUrl>
+       <requireLicenseAcceptance>false</requireLicenseAcceptance>
+       <description>
+         Read a card without number setoff from a cross platform API.
+       </description>
+     <releaseNotes>
+       For changelog go to: https://github.com/tristanmhmx/CrossCardReader/blob/master/CHANGELOG.md
+     </releaseNotes>
+       <summary>Read a card without number setoff from a cross platform API.</summary>
+       <tags>xamarin, pcl, xam.pcl, card, plugin, plugin for xamarin, android, xamarin.forms, ios</tags>
+       <dependencies>
+           <group targetFramework="MonoAndroid10">
+               <dependency id="Plugin.Permissions" version="1.2.1"/>
+           </group>
+       </dependencies>
+   </metadata>
+   <files>
+     <file src="nuget\readme.txt" target="readme.txt" />
+     <!--Core-->
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.dll" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.Vibrate.Abstractions.dll" />
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.xml" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.Vibrate.Abstractions.xml" />
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.pdb" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.Vibrate.Abstractions.pdb" />
+     <file src="..\CrossCardReader\bin\Release\Plugin.Vibrate.dll" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.Vibrate.dll" />
+     <file src="..\CrossCardReader\bin\Release\Plugin.Vibrate.xml" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.Vibrate.xml" />
+     <file src="..\CrossCardReader\bin\Release\Plugin.Vibrate.pdb" target="lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\Plugin.Vibrate.pdb" />
+
+     <!--Xamarin.Android-->
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.dll" target="lib\MonoAndroid10\Plugin.Vibrate.Abstractions.dll" />
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.xml" target="lib\MonoAndroid10\Plugin.Vibrate.Abstractions.xml" />
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.pdb" target="lib\MonoAndroid10\Plugin.Vibrate.Abstractions.pdb" />
+     <file src="..\CrossCardReader.Android\bin\Release\Plugin.Vibrate.dll" target="lib\MonoAndroid10\Plugin.Vibrate.dll" />
+     <file src="..\CrossCardReader.Android\bin\Release\Plugin.Vibrate.xml" target="lib\MonoAndroid10\Plugin.Vibrate.xml" />
+     <file src="..\CrossCardReader.Android\bin\Release\Plugin.Vibrate.pdb" target="lib\MonoAndroid10\Plugin.Vibrate.pdb" />
+
+     <!--Xamarin.iOS-->
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.dll" target="lib\MonoTouch10\Plugin.Vibrate.Abstractions.dll" />
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.xml" target="lib\MonoTouch10\Plugin.Vibrate.Abstractions.xml" />
+     <file src="..\CrossCardReader.Abstractions\bin\Release\Plugin.Vibrate.Abstractions.pdb" target="lib\MonoTouch10\Plugin.Vibrate.Abstractions.pdb" />
+     <file src="..\CrossCardReader.iOS\bin\iPhone\Release\Plugin.Vibrate.dll" target="lib\MonoTouch10\Plugin.Vibrate.dll" />
+     <file src="..\CrossCardReader.iOS\bin\iPhone\Release\Plugin.Vibrate.xml" target="lib\MonoTouch10\Plugin.Vibrate.xml" />
+
+
+   </files>
+</package>
