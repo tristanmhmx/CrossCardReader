@@ -15,7 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossCardReader.iOS", "Cros
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{68F1DD67-F10C-43DC-B2DF-4BB5BF5591E0}"
 	ProjectSection(SolutionItems) = preProject
-		Plugin.nuspec = Plugin.nuspec
+		..\..\nuget\CrossCardReader.nuspec = ..\..\nuget\CrossCardReader.nuspec
+		..\..\nuget\readme.txt = ..\..\nuget\readme.txt
 	EndProjectSection
 EndProject
 Global

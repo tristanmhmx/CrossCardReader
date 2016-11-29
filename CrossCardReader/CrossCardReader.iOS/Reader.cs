@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CrossCardReader.Abstractions;
 using Foundation;
 using UIKit;
 
-namespace CrossCardReader.iOS
+namespace CrossCardReader
 {
+    /// <summary>
+    /// Read a card without card number setoff from a cross platform API.
+    /// </summary>
     public class ReaderImplementation : ICardReader
     {
         private string api;
@@ -17,42 +18,51 @@ namespace CrossCardReader.iOS
         private ReaderController readerController;
         private int requestId;
         private TaskCompletionSource<Card> completionSource;
-        public bool IsCameraAvailable { get; }
+        /// <summary>
+        /// Property to check if camera is available
+        /// </summary>
+        public bool IsCameraAvailable { get; set; }
 
-        public bool IsTakePhotoSupported { get; }
-        public const string TypeImage = "public.image";
-        public bool IsPickPhotoSupported { get; }
+        /// <summary>
+        /// Implementation of the card reader
+        /// </summary>
         public ReaderImplementation()
         {
             IsCameraAvailable = UIImagePickerController.IsSourceTypeAvailable(UIImagePickerControllerSourceType.Camera);
-            var availableCameraMedia = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.Camera) ?? new string[0];
-            var avaialbleLibraryMedia = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.PhotoLibrary) ?? new string[0];
-
-            foreach (var type in availableCameraMedia.Concat(avaialbleLibraryMedia))
-            {
-                if (type == TypeImage)
-                    IsTakePhotoSupported = IsPickPhotoSupported = true;
-            }
         }
 
+        /// <summary>
+        /// Initializes control and sets Cognitive Api Key
+        /// </summary>
+        /// <param name="apiKey">Cognitvie Services Api Key</param>
+        /// <returns>True if initialized</returns>
         public Task<bool> Initialize(string apiKey)
         {
             api = apiKey;
             return Task.FromResult(true);
         }
-
-        public Task<Card> RecognizeCardAsync(Products supportedProducts)
+        /// <summary>
+        /// Recognizes a card given a list of supportes bins (8 digits)
+        /// </summary>
+        /// <param name="supportedProducts">Hashset of supported bins</param>
+        /// <returns>Card number and expiration</returns>
+        /// <exception cref="NotSupportedException">Exception thrown if camera is not available, supported products is null or hashset count is 0</exception>
+        public async Task<Card> RecognizeCardAsync(Products supportedProducts)
         {
-            if(!IsTakePhotoSupported)
-                throw new NotSupportedException();
-            if(!IsCameraAvailable)
-                throw new NotSupportedException();
+            if (!IsCameraAvailable)
+                throw new NotSupportedException("This device does not has a camera available");
+
+            if (supportedProducts == null)
+                throw new NotSupportedException("Product list cannot be null or empty");
+
+            if (supportedProducts.Count == 0)
+                throw new NotSupportedException("Product list cannot be null or empty");
 
             CheckCameraUsageDescription();
 
-            return ReadAsync(supportedProducts, api);
-
+            return await ReadAsync(supportedProducts, api);
         }
+        
 
         private Task<Card> ReadAsync(Products supportedProducts, string apiKey)
         {
@@ -101,10 +111,11 @@ namespace CrossCardReader.iOS
             navigationController.DismissModalViewController(true);
             return result;
         }
+
         private int GetRequestId()
         {
-            int id = requestId;
-            if (requestId == Int32.MaxValue)
+            var id = requestId;
+            if (requestId == int.MaxValue)
                 requestId = 0;
             else
                 requestId++;
@@ -112,21 +123,19 @@ namespace CrossCardReader.iOS
             return id;
         }
 
-        void CheckCameraUsageDescription()
+        private static void CheckCameraUsageDescription()
         {
             var info = NSBundle.MainBundle.InfoDictionary;
 
-            if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
-            {
-                if (!info.ContainsKey(new NSString("NSCameraUsageDescription")))
-                    throw new UnauthorizedAccessException("On iOS 10 and higher you must set NSCameraUsageDescription in your Info.plist file to enable Authorization Requests for Camera access!");
-            }
+            if (!UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) return;
+
+            if (!info.ContainsKey(new NSString("NSCameraUsageDescription")))
+                throw new UnauthorizedAccessException("On iOS 10 and higher you must set NSCameraUsageDescription in your Info.plist file to enable Authorization Requests for Camera access!");
         }
         
 
         private UINavigationController FindNavigationController()
         {
-            //Check to see if the roomviewcontroller is the navigationcontroller.
             foreach (var window in UIApplication.SharedApplication.Windows)
             {
                 if (window.RootViewController.NavigationController != null)

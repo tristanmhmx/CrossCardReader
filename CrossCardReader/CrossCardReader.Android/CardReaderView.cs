@@ -14,8 +14,11 @@ using CrossCardReader.Abstractions;
 using Camera = Android.Hardware.Camera;
 #pragma warning restore 618
 
-namespace CrossCardReader.Android
+namespace CrossCardReader
 {
+    /// <summary>
+    /// View for the card reader
+    /// </summary>
     [Activity(ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
     [Preserve(AllMembers = true)]
     public class CardReaderView : Activity, TextureView.ISurfaceTextureListener
@@ -28,10 +31,12 @@ namespace CrossCardReader.Android
         private TextureView textureView;
         internal static event EventHandler<CardReadEventArgs> CardRead;
 
+        // ReSharper disable InconsistentNaming
         internal const string ExtraId = "id";
         internal const string ExtraFront = "android.intent.extras.CAMERA_FACING";
         internal const string ExtraProducts = "supportedProducts";
         internal const string ExtraApiKey = "cognitiveKey";
+        // ReSharper enable InconsistentNaming
 
         private int id;
         private int front;
@@ -72,6 +77,12 @@ namespace CrossCardReader.Android
 
         }
 
+        /// <summary>
+        /// Events when surfacetexture is available, sets camera parameters
+        /// </summary>
+        /// <param name="surface">Surface</param>
+        /// <param name="width">Width</param>
+        /// <param name="height">Height</param>
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
 #pragma warning disable 618
@@ -88,16 +99,31 @@ namespace CrossCardReader.Android
             PrepareAndStartCamera();
         }
 
+        /// <summary>
+        /// Does nothing
+        /// </summary>
+        /// <param name="surface">Surface</param>
+        /// <returns></returns>
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
         {
             return true;
         }
 
+        /// <summary>
+        /// Resets camera
+        /// </summary>
+        /// <param name="surface">Surface</param>
+        /// <param name="width">Width</param>
+        /// <param name="height">Height</param>
         public void OnSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height)
         {
             PrepareAndStartCamera();
         }
 
+        /// <summary>
+        /// Does nothing
+        /// </summary>
+        /// <param name="surface"></param>
         public void OnSurfaceTextureUpdated(SurfaceTexture surface)
         {
 
@@ -176,7 +202,7 @@ namespace CrossCardReader.Android
         public CardReadEventArgs(int id, Exception error)
         {
             if (error == null)
-                throw new ArgumentNullException("error");
+                throw new ArgumentNullException(nameof(error));
 
             RequestId = id;
             Error = error;
@@ -187,7 +213,7 @@ namespace CrossCardReader.Android
             RequestId = id;
             IsCanceled = isCanceled;
             if (!IsCanceled && card == null)
-                throw new ArgumentNullException("card");
+                throw new ArgumentNullException(nameof(card));
 
             Card = card;
         }
@@ -201,33 +227,17 @@ namespace CrossCardReader.Android
         public bool IsCanceled
         {
             get;
-            private set;
         }
 
         public Exception Error
         {
             get;
-            private set;
         }
 
         public Card Card
         {
             get;
-            private set;
         }
-
-        public Task<Card> ToTask()
-        {
-            var tcs = new TaskCompletionSource<Card>();
-
-            if (IsCanceled)
-                tcs.SetResult(null);
-            else if (Error != null)
-                tcs.SetException(Error);
-            else
-                tcs.SetResult(Card);
-
-            return tcs.Task;
-        }
+        
     }
 }

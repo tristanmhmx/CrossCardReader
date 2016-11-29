@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
 
 namespace CrossCardReader.Abstractions
 {
+    /// <summary>
+    /// Service for Card Recognition
+    /// </summary>
     public class CardRecognitionService
     {
         #region Validation Parameters
@@ -18,12 +20,22 @@ namespace CrossCardReader.Abstractions
 
         private readonly OcrRecognitionService service;
 
+        /// <summary>
+        /// Initialize Service with products and cognitive api key
+        /// </summary>
+        /// <param name="products"></param>
+        /// <param name="apiKey"></param>
         public CardRecognitionService(string[] products, string apiKey)
         {
             service = new OcrRecognitionService();
             service.Init(apiKey);
             PreferredCardRole = products;
         }
+        /// <summary>
+        /// Recognized a Card
+        /// </summary>
+        /// <param name="data">Image</param>
+        /// <returns>Card</returns>
         public async Task<Card> RecognizeCard(byte[] data)
         {
             var card = new Card();
@@ -74,6 +86,9 @@ namespace CrossCardReader.Abstractions
         }
 
     }
+    /// <summary>
+    /// Cognitive service OCR
+    /// </summary>
     public class OcrRecognitionService
     {
         #region Fields
@@ -81,16 +96,6 @@ namespace CrossCardReader.Abstractions
         /// Api Key for Microsoft Face Vision Api
         /// </summary>
         private static string ApiKey { get; set; }
-
-        /// <summary>
-        /// Global value to reference along the class if it safe to start using services
-        /// </summary>
-        private static bool IsInitialized { get; set; }
-
-        /// <summary>
-        /// Manage if this class should break if they are more faces on given image
-        /// </summary>
-        private static bool ShouldBreakOnNoText { get; set; }
 
         /// <summary>
         /// Sets if the class should throw errors
@@ -110,8 +115,6 @@ namespace CrossCardReader.Abstractions
         public void Init(string apiKey, bool breakOnNoText = true, bool throwErrors = true)
         {
             ApiKey = apiKey;
-            IsInitialized = true;
-            ShouldBreakOnNoText = breakOnNoText;
             ThrowErrors = throwErrors;
         }
         #endregion Constructors

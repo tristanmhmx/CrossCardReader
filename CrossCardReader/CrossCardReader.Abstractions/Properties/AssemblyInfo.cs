@@ -8,3 +8,8 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("CrossCardReader.Abstractions")]
 [assembly: AssemblyProduct("CrossCardReader.Abstractions")]
+[assembly: AssemblyDescription("Card Reader for non-offset cards")]
+[assembly: AssemblyCompany("Alset")]
+[assembly: AssemblyCopyright("Alset")]
+[assembly: AssemblyVersion("1.0.0.2")]
+

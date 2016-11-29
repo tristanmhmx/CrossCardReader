@@ -7,23 +7,30 @@ using CrossCardReader.Abstractions;
 using Foundation;
 using UIKit;
 
-namespace CrossCardReader.iOS
+namespace CrossCardReader
 {
+    /// <summary>
+    /// Controller for card reader view
+    /// </summary>
     public class ReaderController : UIViewController
     {
         private AVCaptureSession captureSession;
         private AVCaptureDeviceInput captureDeviceInput;
-        private UIButton toggleCameraButton;
-        private UIButton toggleFlashButton;
         private UIView liveCameraStream;
         private AVCaptureStillImageOutput stillImageOutput;
         private UIButton takePhotoButton;
-        private CardRecognitionService cardDetectorService;
         private readonly string apiKey;
         private readonly string[] supportedProducts;
         internal event EventHandler<CardReadEventArgs> CardRead;
-        private int requestCode;
+        private readonly int requestCode;
+        private UIView helperView;
 
+        /// <summary>
+        /// Initializes Controller
+        /// </summary>
+        /// <param name="products">Supported Products</param>
+        /// <param name="api">Cognitive Api Key</param>
+        /// <param name="request">Id of the read request</param>
         public ReaderController(string[] products, string api, int request)
         {
             apiKey = api;
@@ -31,6 +38,16 @@ namespace CrossCardReader.iOS
             requestCode = request;
         }
 
+        /// <summary>Finalizer for the NSObject object</summary>
+        ~ReaderController()
+        {
+            takePhotoButton.TouchUpInside -= CapturePhoto;
+        }
+
+        /// <summary>Called after the controller’s <see cref="P:UIKit.UIViewController.View" /> is loaded into memory.</summary>
+        /// <remarks>
+        ///   <para>This method is called after <c>this</c> <see cref="T:UIKit.UIViewController" />'s <see cref="P:UIKit.UIViewController.View" /> and its entire view hierarchy have been loaded into memory. This method is called whether the <see cref="T:UIKit.UIView" /> was loaded from a .xib file or programmatically.</para>
+        /// </remarks>
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
@@ -40,17 +57,23 @@ namespace CrossCardReader.iOS
 
             AuthorizeCameraUse();
             SetupLiveCameraStream();
-
-            ToggleFrontBackCamera();
         }
 
+        /// <param name="animated">
+        ///   <para>
+        ///     <see langword="true" /> if the appearance was animated.</para>
+        /// </param>
+        /// <summary>Called after the <see cref="P:UIKit.UIViewController.View" /> is added to the view hierarchy.
+        /// </summary>
+        /// <remarks>
+        ///   <para>This method is called after the <see cref="T:UIKit.UIView" /> that is <c>this</c> <see cref="T:UIKit.UIViewController" />’s <see cref="P:UIKit.UIViewController.View" /> property is added to the display <see cref="T:UIKit.UIView" /> hierarchy. </para>
+        ///   <para>Application developers who override this method must call <c>base.ViewDidAppear()</c> in their overridden method.</para>
+        /// </remarks>
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
 
             UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
-
-            cardDetectorService = new CardRecognitionService(supportedProducts, apiKey);
         }
 
         private async void AuthorizeCameraUse()
@@ -66,7 +89,7 @@ namespace CrossCardReader.iOS
         private void SetupLiveCameraStream()
         {
             captureSession = new AVCaptureSession();
-            
+
             var videoPreviewLayer = new AVCaptureVideoPreviewLayer(captureSession)
             {
                 Frame = liveCameraStream.Bounds
@@ -75,9 +98,10 @@ namespace CrossCardReader.iOS
             liveCameraStream.Layer.AddSublayer(videoPreviewLayer);
 
             var captureDevice = AVCaptureDevice.DefaultDeviceWithMediaType(AVMediaType.Video);
+
             ConfigureCameraForDevice(captureDevice);
             captureDeviceInput = AVCaptureDeviceInput.FromDevice(captureDevice);
-            
+
             stillImageOutput = new AVCaptureStillImageOutput
             {
                 OutputSettings = new NSDictionary()
@@ -88,7 +112,7 @@ namespace CrossCardReader.iOS
             captureSession.StartRunning();
         }
 
-        private async void CapturePhoto()
+        private async void CapturePhoto(object sender, EventArgs eventArgs)
         {
 
             var videoConnection = stillImageOutput.ConnectionFromMediaType(AVMediaType.Video);
@@ -116,21 +140,7 @@ namespace CrossCardReader.iOS
                 return new CardReadEventArgs(req, ex);
             }
         }
-
-        private void ToggleFrontBackCamera()
-        {
-            var devicePosition = captureDeviceInput.Device.Position;
-            devicePosition = devicePosition == AVCaptureDevicePosition.Front ? AVCaptureDevicePosition.Back : AVCaptureDevicePosition.Front;
-
-            var device = GetCameraForOrientation(devicePosition);
-            ConfigureCameraForDevice(device);
-
-            captureSession.BeginConfiguration();
-            captureSession.RemoveInput(captureDeviceInput);
-            captureDeviceInput = AVCaptureDeviceInput.FromDevice(device);
-            captureSession.AddInput(captureDeviceInput);
-            captureSession.CommitConfiguration();
-        }
+        
 
         private static void ConfigureCameraForDevice(AVCaptureDevice device)
         {
@@ -154,92 +164,44 @@ namespace CrossCardReader.iOS
                 device.UnlockForConfiguration();
             }
         }
-
-        private void ToggleFlash()
-        {
-            var device = captureDeviceInput.Device;
-
-            if (device.HasFlash)
-            {
-                NSError error;
-                if (device.FlashMode == AVCaptureFlashMode.On)
-                {
-                    device.LockForConfiguration(out error);
-                    device.FlashMode = AVCaptureFlashMode.Off;
-                    device.UnlockForConfiguration();
-
-                    toggleFlashButton.SetBackgroundImage(UIImage.FromFile("NoFlashButton.png"), UIControlState.Normal);
-                }
-                else
-                {
-                    device.LockForConfiguration(out error);
-                    device.FlashMode = AVCaptureFlashMode.On;
-                    device.UnlockForConfiguration();
-
-                    toggleFlashButton.SetBackgroundImage(UIImage.FromFile("FlashButton.png"), UIControlState.Normal);
-                }
-            }
-        }
-
-        private static AVCaptureDevice GetCameraForOrientation(AVCaptureDevicePosition orientation)
-        {
-            var devices = AVCaptureDevice.DevicesWithMediaType(AVMediaType.Video);
-
-            return devices.FirstOrDefault(device => device.Position == orientation);
-        }
+        
 
         private void SetupUserInterface()
         {
             var centerButtonX = View.Bounds.GetMidX() - 35f;
-            var topLeftX = View.Bounds.X + 25;
-            var topRightX = View.Bounds.Right - 65;
-            var bottomButtonY = View.Bounds.Bottom - 85;
-            var topButtonY = View.Bounds.Top + 15;
+            var bottomButtonY = View.Bounds.Bottom - 150;
             var buttonWidth = 70;
             var buttonHeight = 70;
 
-            liveCameraStream = new UIView()
+            liveCameraStream = new UIView
             {
-                Frame = new CGRect(0f, 0f, 320f, View.Bounds.Height)
+                Frame = new CGRect(0f, 0f, View.Bounds.Width, View.Bounds.Height)
             };
 
-            takePhotoButton = new UIButton()
+            takePhotoButton = new UIButton
             {
                 Frame = new CGRect(centerButtonX, bottomButtonY, buttonWidth, buttonHeight)
             };
+
             takePhotoButton.SetBackgroundImage(UIImage.FromFile("TakePhotoButton.png"), UIControlState.Normal);
 
-            toggleCameraButton = new UIButton()
+            helperView = new UIView
             {
-                Frame = new CGRect(topRightX, topButtonY + 5, 35, 26)
+                Frame = new CGRect(View.Bounds.GetMidX() - 150f, View.Bounds.GetMidY() - 150f, 300f, 200f)
             };
-            toggleCameraButton.SetBackgroundImage(UIImage.FromFile("ToggleCameraButton.png"), UIControlState.Normal);
 
-            toggleFlashButton = new UIButton()
-            {
-                Frame = new CGRect(topLeftX, topButtonY, 37, 37)
-            };
-            toggleFlashButton.SetBackgroundImage(UIImage.FromFile("NoFlashButton.png"), UIControlState.Normal);
+            var red = new UIColor((nfloat)(100.0 / 255.0), (nfloat)(130.0 / 255.0), (nfloat)(230.0 / 255.0), 1);
+            helperView.Layer.BorderColor = red.CGColor;
+            helperView.Layer.BorderWidth = 5.8f;
 
             View.Add(liveCameraStream);
+            View.Add(helperView);
             View.Add(takePhotoButton);
-            View.Add(toggleCameraButton);
-            View.Add(toggleFlashButton);
         }
 
         private void SetupEventHandlers()
         {
-            takePhotoButton.TouchUpInside += (sender, e) => {
-                CapturePhoto();
-            };
-
-            toggleCameraButton.TouchUpInside += (sender, e) => {
-                ToggleFrontBackCamera();
-            };
-
-            toggleFlashButton.TouchUpInside += (sender, e) => {
-                ToggleFlash();
-            };
+            takePhotoButton.TouchUpInside += CapturePhoto;
         }
         private void OnCardRead(CardReadEventArgs e)
         {
@@ -252,7 +214,7 @@ namespace CrossCardReader.iOS
         public CardReadEventArgs(int id, Exception error)
         {
             if (error == null)
-                throw new ArgumentNullException("error");
+                throw new ArgumentNullException(nameof(error));
 
             RequestId = id;
             Error = error;
@@ -263,7 +225,7 @@ namespace CrossCardReader.iOS
             RequestId = id;
             IsCanceled = isCanceled;
             if (!IsCanceled && card == null)
-                throw new ArgumentNullException("card");
+                throw new ArgumentNullException(nameof(card));
 
             Card = card;
         }
@@ -277,33 +239,17 @@ namespace CrossCardReader.iOS
         public bool IsCanceled
         {
             get;
-            private set;
         }
 
         public Exception Error
         {
             get;
-            private set;
         }
 
         public Card Card
         {
             get;
-            private set;
         }
-
-        public Task<Card> ToTask()
-        {
-            var tcs = new TaskCompletionSource<Card>();
-
-            if (IsCanceled)
-                tcs.SetResult(null);
-            else if (Error != null)
-                tcs.SetException(Error);
-            else
-                tcs.SetResult(Card);
-
-            return tcs.Task;
-        }
+        
     }
 }
