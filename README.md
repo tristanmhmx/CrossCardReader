@@ -3,8 +3,9 @@ Simple cross platform plugin read a non-setoff card from shared code.
 Ported from Xamarin.Mobile to a cross platform API.
 
 ###Setup
-*Install into your PCL project and Client projects.
-*Please see the additional setup for each platforms permissions.
+* Available on NuGet: https://www.nuget.org/packages/CrossCardReader/ [![NuGet](https://img.shields.io/nuget/v/CrossCardReader.svg?label=NuGet)](https://www.nuget.org/packages/CrossCardReader/)
+* Install into your PCL project and Client projects.
+* Please see the additional setup for each platforms permissions.
 
 **Platform Support**
 
