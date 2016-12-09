@@ -51,29 +51,11 @@ namespace CrossCardReader
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
             SetupUserInterface();
             SetupEventHandlers();
 
             AuthorizeCameraUse();
             SetupLiveCameraStream();
-        }
-
-        /// <param name="animated">
-        ///   <para>
-        ///     <see langword="true" /> if the appearance was animated.</para>
-        /// </param>
-        /// <summary>Called after the <see cref="P:UIKit.UIViewController.View" /> is added to the view hierarchy.
-        /// </summary>
-        /// <remarks>
-        ///   <para>This method is called after the <see cref="T:UIKit.UIView" /> that is <c>this</c> <see cref="T:UIKit.UIViewController" />’s <see cref="P:UIKit.UIViewController.View" /> property is added to the display <see cref="T:UIKit.UIView" /> hierarchy. </para>
-        ///   <para>Application developers who override this method must call <c>base.ViewDidAppear()</c> in their overridden method.</para>
-        /// </remarks>
-        public override void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-
-            UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
         }
 
         private async void AuthorizeCameraUse()
@@ -194,9 +176,9 @@ namespace CrossCardReader
             helperView.Layer.BorderColor = red.CGColor;
             helperView.Layer.BorderWidth = 5.8f;
 
-            View.Add(liveCameraStream);
-            View.Add(helperView);
-            View.Add(takePhotoButton);
+            Add(liveCameraStream);
+            Add(helperView);
+            Add(takePhotoButton);
         }
 
         private void SetupEventHandlers()

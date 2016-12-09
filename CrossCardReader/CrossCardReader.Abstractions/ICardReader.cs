@@ -9,6 +9,10 @@ namespace CrossCardReader.Abstractions
     public interface ICardReader
     {
         /// <summary>
+        /// Property to check if camera is available
+        /// </summary>
+        bool IsCameraAvailable { get; }
+        /// <summary>
         /// Initializes control and sets Cognitive Api Key
         /// </summary>
         /// <param name="apiKey">Cognitvie Services Api Key</param>

@@ -8,26 +8,29 @@ using UIKit;
 
 namespace CrossCardReader
 {
+
     /// <summary>
     /// Read a card without card number setoff from a cross platform API.
     /// </summary>
+    [Preserve(AllMembers = true)]
     public class ReaderImplementation : ICardReader
     {
         private string api;
-        private UINavigationController navigationController;
         private ReaderController readerController;
         private int requestId;
         private TaskCompletionSource<Card> completionSource;
+        private UINavigationController navigationController; 
         /// <summary>
         /// Property to check if camera is available
         /// </summary>
-        public bool IsCameraAvailable { get; set; }
+        public bool IsCameraAvailable { get; }
 
         /// <summary>
         /// Implementation of the card reader
         /// </summary>
         public ReaderImplementation()
         {
+            navigationController = FindNavigationController();
             IsCameraAvailable = UIImagePickerController.IsSourceTypeAvailable(UIImagePickerControllerSourceType.Camera);
         }
 
@@ -67,24 +70,24 @@ namespace CrossCardReader
         private Task<Card> ReadAsync(Products supportedProducts, string apiKey)
         {
             var window = UIApplication.SharedApplication.KeyWindow;
+
             if (window == null)
             {
                 throw new InvalidOperationException("There's no current active window");
             }
 
-            navigationController = FindNavigationController();
-
             if (navigationController == null)
             {
-                throw new InvalidOperationException("Could not find current Navigation Controller");
+                throw new InvalidOperationException("There's no current navigation controller");
             }
-
+            
             var id = GetRequestId();
             var ntcs = new TaskCompletionSource<Card>(id);
             if (Interlocked.CompareExchange(ref completionSource, ntcs, null) != null)
                 throw new InvalidOperationException("Only one operation can be active at a time");
 
             readerController = new ReaderController(supportedProducts.ToArray(), apiKey, id);
+            
             navigationController.PresentModalViewController(readerController, true);
 
             EventHandler<CardReadEventArgs> handler = null;
@@ -98,18 +101,25 @@ namespace CrossCardReader
                     return;
                 }
                 if (e.IsCanceled)
+                {
+                    navigationController.DismissModalViewController(true);
                     tcs.SetResult(null);
+                }
                 else if (e.Error != null)
+                {
+                    navigationController.DismissModalViewController(true);
                     tcs.SetException(e.Error);
+                }
                 else
+                {
+                    navigationController.DismissModalViewController(true);
                     tcs.SetResult(e.Card);
+                }
             };
 
             readerController.CardRead += handler;
 
-            var result = completionSource.Task;
-            navigationController.DismissModalViewController(true);
-            return result;
+            return completionSource.Task;
         }
 
         private int GetRequestId()
@@ -132,10 +142,14 @@ namespace CrossCardReader
             if (!info.ContainsKey(new NSString("NSCameraUsageDescription")))
                 throw new UnauthorizedAccessException("On iOS 10 and higher you must set NSCameraUsageDescription in your Info.plist file to enable Authorization Requests for Camera access!");
         }
-        
 
+        /// <summary>
+        /// Find NavigationController in navigation stack.
+        /// </summary>
+        /// <returns>UINavigationController</returns>
         private UINavigationController FindNavigationController()
         {
+            //Check to see if the roomviewcontroller is the navigationcontroller.
             foreach (var window in UIApplication.SharedApplication.Windows)
             {
                 if (window.RootViewController.NavigationController != null)
@@ -147,6 +161,12 @@ namespace CrossCardReader
 
             return null;
         }
+
+        /// <summary>
+        /// Find navigation controller in childs controllers.
+        /// </summary>
+        /// <param name="controllers">Controllers in the hierarchy of the app</param>
+        /// <returns>Controller who have the NavigationController</returns>
         private UINavigationController CheckSubs(UIViewController[] controllers)
         {
             foreach (var controller in controllers)

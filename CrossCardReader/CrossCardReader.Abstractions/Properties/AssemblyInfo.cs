@@ -11,5 +11,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Card Reader for non-offset cards")]
 [assembly: AssemblyCompany("Alset")]
 [assembly: AssemblyCopyright("Alset")]
-[assembly: AssemblyVersion("1.0.0.2")]
+[assembly: AssemblyVersion("1.0.3")]
 
