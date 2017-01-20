@@ -54,8 +54,8 @@ Such as:
 
 ###Special Thanks
 
-Esteban Gimbernat
-All of the [libraries and projects](CrossCardReader/blob/master/OpenSource.md) that made Moments possible.
+Esteban Gimbernat.  
+All of the [libraries and projects](OpenSource.md) that made Moments possible.
 
 Thanks!
 
