@@ -1,4 +1,4 @@
-##Media Plugin for Xamarin and Windows
+##Card Reader for Xamarin Forms
 Simple cross platform plugin read a non-setoff card from shared code.
 Ported from Xamarin.Mobile to a cross platform API.
 
