@@ -52,6 +52,13 @@ Such as:
 <key>NSCameraUsageDescription</key>
 <string>This app needs access to the camera to take photos.</string>
 
+###Special Thanks
+
+Esteban Gimbernat
+All of the [libraries and projects](CrossCardReader/blob/master/OpenSource.md) that made Moments possible.
+
+Thanks!
+
 The MIT License (MIT)
 
 Copyright (c) 2016 Alset & Tristan Martinez
