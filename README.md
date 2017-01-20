@@ -54,7 +54,6 @@ Such as:
 
 ###Special Thanks
 
-Esteban Gimbernat.  
 All of the [libraries and projects](OpenSource.md) that made this plugin possible.
 
 Thanks!
